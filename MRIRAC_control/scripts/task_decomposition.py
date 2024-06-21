@@ -1,19 +1,3 @@
-"""
-AIMODEL
-Author: Leonoor Verbaan
-Affiliation: Technical University Delft
-Student number: 5415721
-
-This script is designed to integrate Large Language Model understanding with robotic manipulation.
-It leverages OpenAI's GPT models to interpret images and generate instructions for robotic movements.
-
-Key Components:
-- OpenAI GPT Integration: Utilizes OpenAI's API to process textual prompts and images, generating descriptions of environments or responses to queries.
-- Environmental Interpretation: Generates textual descriptions of environments from images, identifying assets and objects, and their states. This allows the system to understand and interact with its surroundings.
-- Instruction Generation: Based on the interpreted environment, the system can receive textual instructions (e.g., move a robot arm) and generate responses and further instructions via feedback.
-- Task Sequencing control: Executes sequences of robotic tasks based on the integrated Large Language Models, the control is integrates with ROS (Robot Operating System) which a set of predefined motion primitives to execute tasks with a robot arm.
-"""
-
 import openai
 import tiktoken
 import json
@@ -24,40 +8,51 @@ import rospy
 import sys
 import base64
 
+# Initialize encoding
 enc = tiktoken.get_encoding("cl100k_base")
+
+# Load credentials from secrets file
 with open('secrets.json') as f:
     credentials = json.load(f)
 
-# with open('../secrets.json') as f:
-# credentials = json.load(f)
-
+# Define directory paths
 dir_system = './system'
-dir_prompt = './/prompt'
-dir_query = './/query'
-prompt_load_order = ['prompt_role',
-                     'input_environment',
-                     'prompt_function',
-                     'prompt_environment',
-                     'prompt_output_format',
-                     'prompt_example']
+dir_prompt = './prompt'
+dir_query = './query'
+
+# Define the order in which prompts will be loaded
+prompt_load_order = [
+    'prompt_role',
+    'input_environment',
+    'prompt_function',
+    'prompt_environment',
+    'prompt_output_format',
+    'prompt_example'
+]
 
 
 class ChatGPT:
     """
-    The ChatGPT class is designed to facilitate interaction between OpenAI's GPT models and robotic systems for environmental interpretation and task execution.
-    It integrates textual and image data processing to generate and execute task sequences based on environmental understanding and instructions provided via text.
+    The ChatGPT class facilitates interaction between OpenAI's GPT models and robotic systems for environmental interpretation and task execution.
+    It processes textual and image data to generate and execute task sequences based on environmental understanding and user instructions.
 
     Functions:
-    - def encode_image_to_base64() - Encodes images to base64 format for processing.
-    - def extract_json_part() - Extracts the JSON formatted string embedded within a larger text block.
-    - def create_prompt() - Dynamically creates prompts for interaction with GPT models.
-    - def generate_environment() - Generates environmental descriptions from images using GPT-4 vision capabilities.
-    - def generate() - Processes instructions and feedback, using GPT-3.5 models to generate textual responses or actions based on the current environment and user input.
-    - def dump_json() -  Serializes and saves the structured data (typically the environment or action outcomes) to a JSON file.
-    - def run_task_sequence() - Executes predefined task sequences using robot motion primitives,
+    - encode_image_to_base64(): Encodes images to base64 format for processing.
+    - extract_json_part(): Extracts the JSON formatted string embedded within a larger text block.
+    - create_prompt(): Dynamically creates prompts for interaction with GPT models.
+    - generate_environment(): Generates environmental descriptions from images using GPT-4 vision capabilities.
+    - generate(): Processes instructions and feedback, using GPT-3.5 models to generate textual responses or actions based on the current environment and user input.
+    - dump_json(): Serializes and saves the structured data (typically the environment or action outcomes) to a JSON file.
     """
 
     def __init__(self, credentials, prompt_load_order):
+        """
+        Initialize the ChatGPT object with necessary credentials and load prompts.
+
+        Args:
+            credentials (dict): API credentials for OpenAI.
+            prompt_load_order (list): Order in which prompt files will be loaded.
+        """
         openai.api_key = credentials["openai"]["OPENAI_API_KEY"]
         self.messages = []
         self.max_token_length = 8000
@@ -83,6 +78,8 @@ class ChatGPT:
             for i, item in enumerate(data_split):
                 role = "user" if i % 2 == 0 else "assistant"
                 self.messages.append({"role": role, "content": item})
+
+        # Load query
         fp_query = os.path.join(dir_query, 'query.txt')
         with open(fp_query) as f:
             self.query = f.read()
@@ -92,17 +89,27 @@ class ChatGPT:
         Encodes an image file to a base64 string.
 
         Parameters:
-        - image_path (str): The file path to the image that needs to be encoded.
-        Returns:
-        - str: A base64-encoded string representation of the image.
-        """
+            image_path (str): The file path to the image that needs to be encoded.
 
+        Returns:
+            str: A base64-encoded string representation of the image.
+        """
         with open(image_path, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
             print(f"Encoded Image: {encoded_string[:100]}...")
             return encoded_string
 
     def load_and_format_content(self, file_path, **format_kwargs):
+        """
+        Loads and formats content from a file with optional keyword formatting.
+
+        Parameters:
+            file_path (str): The path to the file to be loaded.
+            format_kwargs (dict): Optional keyword arguments for formatting the file content.
+
+        Returns:
+            str: The formatted content of the file.
+        """
         with open(file_path, 'r') as file:
             content = file.read()
         try:
@@ -120,13 +127,10 @@ class ChatGPT:
         This method ensures the prompt is within the maximum token length allowed by the model, truncating older messages if necessary to fit the limit.
 
         Returns:
-        - list: A list of dictionaries, each representing a message with a 'role' (indicating who the message is from) and 'content' (the message text itself).
+            list: A list of dictionaries, each representing a message with a 'role' (indicating who the message is from) and 'content' (the message text itself).
         """
-
         prompt = [self.system_message]
         prompt.extend(self.messages)
-
-        #print("Instruction:", self.instruction)
 
         # Add image content to the prompt if provided
         if encoded_image:
@@ -153,9 +157,9 @@ class ChatGPT:
                 [c["text"] if isinstance(c, dict) and "text" in c else "" for c in msg["content"]]) for msg in prompt]
         )
 
+        # Truncate the prompt by removing the oldest messages if it exceeds the token limit
         if len(enc.encode(prompt_content)) > self.max_token_length - self.max_completion_length:
             print('Prompt too long, truncating.')
-            # Truncate the prompt by removing the oldest messages
             while len(enc.encode(prompt_content)) > self.max_token_length - self.max_completion_length and len(
                     self.messages) > 2:
                 self.messages.pop(0)
@@ -172,9 +176,10 @@ class ChatGPT:
         Extracts a JSON-formatted string from a larger text block, ensuring it is clean and parseable.
 
         Parameters:
-        - text (str): The text from which to extract the JSON part.
+            text (str): The text from which to extract the JSON part.
+
         Returns:
-        - str: The extracted and cleaned JSON string.
+            str: The extracted and cleaned JSON string.
         """
         try:
             start = text.index('{')  # Find the start of JSON object
@@ -185,16 +190,17 @@ class ChatGPT:
 
     def generate_environment(self, image_path, is_user_feedback=False, feedback_message=""):
         """
-        Generates a textual description of an environment based on an input image,
-        using OpenAI's GPT model with vision capabilities.
+        Generates a textual description of an environment based on an input image, using OpenAI's GPT model with vision capabilities.
 
         Parameters:
-        - image_path (str): The filesystem path to the image file that will be processed.
-        Returns:
-        - str: A textual description of the environment as interpreted by the GPT model.
-        """
+            image_path (str): The filesystem path to the image file that will be processed.
+            is_user_feedback (bool, optional): Flag to indicate if the message is user feedback. Defaults to False.
+            feedback_message (str, optional): Feedback message to be included in the prompt. Defaults to "".
 
-        # Encode the main image and the example image for the prompts
+        Returns:
+            str: A textual description of the environment as interpreted by the GPT model.
+        """
+        # Encode the image to base64
         encoded_image = self.encode_image_to_base64(image_path)
 
         # Load and format the content from the prompt files
@@ -211,10 +217,6 @@ class ChatGPT:
             environment_prompt_content = f"{feedback_message}\n{prompt_environment_content}"
         else:
             environment_prompt_content = input_environment_content + prompt_environment_content
-
-        # Combine the content from both files into one prompt content
-        # environment_prompt_content = input_environment_content + prompt_environment_content
-        # print("Token count of prompt:", len(enc.encode(environment_prompt_content)))
 
         # Craft the image prompt with text and image content
         image_prompt = {
@@ -260,13 +262,13 @@ class ChatGPT:
         It dynamically updates the interaction context (messages) based on whether the input is new or feedback and constructs a prompt to send to the GPT model.
 
         Parameters:
-        - message (str): The instruction or feedback provided by the user.
-        - environment (dict): The current environmental context represented as a dictionary. This context includes details about the environment, objects, and their states.
-        - is_user_feedback (bool, optional): Flag to indicate whether the provided message is feedback on a previous response. Default is False, indicating a new instruction.
-        Returns:
-        - dict: A dictionary representing the LLM response.
-        """
+            message (str): The instruction or feedback provided by the user.
+            environment (dict): The current environmental context represented as a dictionary. This context includes details about the environment, objects, and their states.
+            is_user_feedback (bool, optional): Flag to indicate whether the provided message is feedback on a previous response. Default is False.
 
+        Returns:
+            dict: A dictionary representing the LLM response.
+        """
         if is_user_feedback:
             self.messages.append({'role': 'user', 'content': message + "\n" + self.instruction})
         else:
@@ -298,8 +300,11 @@ class ChatGPT:
         self.last_response = text
         self.last_response = self.extract_json_part(self.last_response)
         self.last_response = self.last_response.replace("'", "\"")
+
+        # Save the last response
         with open('last_response.txt', 'w') as f:
             f.write(self.last_response)
+
         try:
             self.json_dict = json.loads(self.last_response, strict=False)
             self.environment = self.json_dict["environment_after"]
@@ -308,7 +313,6 @@ class ChatGPT:
             self.json_dict = {}
         except BaseException:
             self.json_dict = None
-            import pdb
             pdb.set_trace()
 
         if len(self.messages) > 0 and self.last_response is not None:
@@ -321,41 +325,39 @@ class ChatGPT:
         Serializes the current state or any structured data into a JSON file.
 
         Parameters:
-        - dump_name (Optional[str]): The name of the file to which the JSON data will be written.
+            dump_name (Optional[str]): The name of the file to which the JSON data will be written.
         Effect:
-        - Creates a new JSON file or overwrites an existing file.
+            Creates a new JSON file or overwrites an existing file.
         """
-
         if dump_name is not None:
-            # dump the dictionary to json file dump 1, 2, ...
-            fp = os.path.join(dump_name + '.json')
+            # dump the dictionary to a JSON file
+            fp = os.path.join('./out', dump_name + '.json')
             with open(fp, 'w') as f:
                 json.dump(self.json_dict, f, indent=4)
 
 
 if __name__ == "__main__":
-
-    rospy.init_node('main_control_node', anonymous=True)
+    # Initialize the ROS node
+    rospy.init_node('ChatGPT_vision_control_node', anonymous=True)
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--scenario',
         type=str,
         required=True,
-        help='scenario name (see the code for details)')
+        help='Scenario name (see the code for details)')
     args = parser.parse_args()
     scenario_name = args.scenario
 
-    image_path = "/home/allianderai/LLM-franka-control-rt/src/rcdt_LLM_fr3/MRIRAC_control/out/demo/detected_markers.jpg"
+    # Define the relative path to the image
+    image_path = os.path.join('..', 'out', 'demo', 'detected_markers.jpg')
 
     # Initialize the model and generate the environment description
     aimodel = ChatGPT(credentials, prompt_load_order=prompt_load_order)
     environment_json = aimodel.generate_environment(image_path)
-    # print("Raw environment data:", environment_json)
 
     try:
         environment = json.loads(environment_json)
-        # print("Environment loaded:", json.dumps(environment, indent=4))
     except json.JSONDecodeError as e:
         print("Failed to decode JSON:", e)
 
@@ -373,13 +375,13 @@ if __name__ == "__main__":
             print("Refined environment:", json.dumps(environment, indent=4))
 
     # Proceed to receive and process instructions
-    if not os.path.exists('./out/' + scenario_name):
-        os.makedirs('./out/' + scenario_name)
+    output_dir = os.path.join('./out', scenario_name)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     instructions = [input("Enter the arm instructions: ")]
     for i, instruction in enumerate(instructions):
         response = aimodel.generate(instruction, environment, image_path, is_user_feedback=False)
-        # print("Initial response:", response)
         while True:
             user_feedback = input('User feedback (return empty if satisfied, type "q" to quit): ')
             if user_feedback.lower() == 'q':
@@ -388,9 +390,8 @@ if __name__ == "__main__":
                 break
             else:
                 response = aimodel.generate(user_feedback, environment, image_path, is_user_feedback=True)
-                # print("Updated response:", response)
 
-        aimodel.dump_json(f'./out/{scenario_name}/{i}')
+        aimodel.dump_json(f'{scenario_name}/{i}')
 
-    json_path = '/home/allianderai/LLM-franka-control-rt/src/rcdt_LLM_fr3/MRIRAC_control/out/demo/0.json'
-    # self.run_task_sequence(json_path)
+    json_path = os.path.join('..', 'out', 'demo', '0.json')
+

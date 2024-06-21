@@ -26,17 +26,15 @@ from geometry_msgs.msg import Pose, Vector3
 from shape_msgs.msg import SolidPrimitive
 from franka_gripper.msg import MoveGoal, MoveAction, GraspGoal, GraspAction, HomingGoal, HomingAction
 
-
+# Initialize encoding and load credentials
 enc = tiktoken.get_encoding("cl100k_base")
 with open('secrets.json') as f:
     credentials = json.load(f)
 
-# with open('../secrets.json') as f:
-# credentials = json.load(f)
-
+# Define directory paths
 dir_system = './system'
-dir_prompt = './/prompt'
-dir_query = './/query'
+dir_prompt = './prompt'
+dir_query = './query'
 prompt_load_order = ['prompt_role',
                      'input_environment',
                      'prompt_function',
@@ -44,16 +42,22 @@ prompt_load_order = ['prompt_role',
                      'prompt_output_format',
                      'prompt_example']
 
+# Define robot and camera parameters
 ROBOT = "fr3"
 CAMERA = "right"
 CAM_IP = "192.168.0.200"
 GRASP_WIDTH = 0.5
 Z_ABOVE_BOARD = 0.1
-Z_TO_PIECE = 0.1 #0.02
+Z_TO_PIECE = 0.1
 
-LOW_CAM_JOINTS = [0.014270682464896165, -0.9818395060681135, 0.048710415021898, -2.569057076198659, -0.009787638639837783, 1.6403438004351425, 0.8450968248276278, 0.0407734178006649, 0.0407734178006649]
-GIVE_JOINTS = [-0.2212685437466231, -0.5117288414050377, 0.1975034868122401, -2.777970915259786, 0.23110102446657219, 2.795546833871574, 0.5554736904880095]
-HIGH_CAM_JOINTS = [-0.10316570739566021, 0.021436616563050445, -0.22314194236226542, -2.5075683853755493, -0.13751088517681878, 2.5268053995945454, -1.0160112798778322, 0.03986130654811859, 0.03986130654811859]
+# Predefined joint configurations
+LOW_CAM_JOINTS = [0.014270682464896165, -0.9818395060681135, 0.048710415021898, -2.569057076198659,
+                  -0.009787638639837783, 1.6403438004351425, 0.8450968248276278, 0.0407734178006649, 0.0407734178006649]
+GIVE_JOINTS = [-0.2212685437466231, -0.5117288414050377, 0.1975034868122401, -2.777970915259786, 0.23110102446657219,
+               2.795546833871574, 0.5554736904880095]
+HIGH_CAM_JOINTS = [-0.10316570739566021, 0.021436616563050445, -0.22314194236226542, -2.5075683853755493,
+                   -0.13751088517681878, 2.5268053995945454, -1.0160112798778322, 0.03986130654811859,
+                   0.03986130654811859]
 
 Z_DROP = 0.05
 X_OFFSET = 0.0
@@ -69,6 +73,13 @@ class RobotControl(object):
     robot_vel = 0.2
 
     def __init__(self, cam=True, camera_index=4):
+        """
+        Initialize the RobotControl object.
+
+        Args:
+            cam (bool): Flag to indicate if camera is used.
+            camera_index (int): Index of the camera to use.
+        """
         self.execution = True
         rospy.on_shutdown(self.shutdown)
         self.commander = MoveGroupCommander(ROBOT + "_arm")
@@ -76,32 +87,31 @@ class RobotControl(object):
         self.commander.set_planning_time(10)
         self.commander.set_planner_id("RRTstar")
 
-        # for the gripper
+        # Initialize gripper clients
         self.move_client = actionlib.SimpleActionClient("/franka_gripper/move", MoveAction)
         self.grasp_client = actionlib.SimpleActionClient("/franka_gripper/grasp", GraspAction)
         self.homing_client = actionlib.SimpleActionClient('/franka_gripper/homing', HomingAction)
         self.gripper_is_open = True
         self.ignore_grasp_error = True
 
-        # predefined configurations
+        # Predefined configurations
         self._R_flange2zed = [45, 2.5, 0]
         if CAMERA == "left":
             self._T_flange2zed = [-0.06, -0.06, 0.02]
         elif CAMERA == "right":
             self._T_flange2zed = [0.06, -0.06, 0.02]
 
-        # configurations to compute
+        # Initialize positions and configurations
         self._zed_position_world = np.zeros(3)
         self._markers_world = np.zeros((1, 3))
         self.board_grid = dict()
         self.board_corners = np.zeros((4, 3))
-        # integrate camera
         self.cam_on = False
         if cam:
             self.cam_on = True
             self.camera = Camera(camera_index=camera_index, name="1", marker_size=0.04)
 
-        # rosparams
+        # Set ROS parameters
         rospy.set_param('x_offset', X_OFFSET)
         rospy.set_param('y_offset', Y_OFFSET)
 
@@ -109,24 +119,27 @@ class RobotControl(object):
         self.init_constraints()
 
     def update_camera_index(self, camera_index):
+        """Update the camera index."""
         if self.cam_on:
             self.camera.camera_index = camera_index
 
     def shutdown(self):
+        """Shutdown the RobotControl node."""
         rospy.loginfo("Stopping the RobotControl node")
         if hasattr(self, "cam_on") and self.cam_on:
             self.camera.close()
-        # Shut down MoveIt cleanly and exit the script
         moveit_commander.roscpp_shutdown()
         moveit_commander.os._exit(0)
 
     def homing(self):
+        """Homing the gripper."""
         homing_client = actionlib.SimpleActionClient('/franka_gripper/homing', HomingAction)
         homing_client.wait_for_server()
         homing_client.send_goal(HomingGoal())
         homing_client.wait_for_result(rospy.Duration.from_sec(5.0))
 
     def update_world_positions(self):
+        """Update world positions of markers based on camera detection."""
         current_pose = self.commander.get_current_pose().pose
 
         P = current_pose.position
@@ -136,26 +149,18 @@ class RobotControl(object):
         R_zed = Rotation.from_euler("ZXY", self._R_flange2zed, degrees=True)
 
         if self.cam_on and len(self.camera.detected_markers) > 0:
-            # Resetting or initializing _markers_world as an empty dictionary
             self._markers_world = {}
-            rospy.loginfo("using detected markers")
+            rospy.loginfo("Using detected markers")
             for marker_id, marker_prop in self.camera.detected_markers.items():
                 marker = marker_prop["pos2camera"]
                 zed2flange = R_zed.apply(marker) + R_zed.apply(self._T_flange2zed)
                 flange2base = R_arm.apply(zed2flange) + np.array([P.x, P.y, P.z])
 
                 # Calculating offsets
-                #flange2base[1] += 0.014
-                #flange2base[2] += 0.25
-                
-                # Calculating offsets
                 flange2base[0] += 0.12
                 flange2base[1] -= 0.02
-                #flange2base[2] += 0.25
                 flange2base[2] -= 0.18
-                #flange2base[2] -= 0.24 #opening the drawer
 
-                # Using marker_id as the key for direct access
                 self._markers_world[marker_id] = flange2base
                 rospy.logdebug(f"Marker {marker_id} world position: {flange2base}")
         else:
@@ -166,32 +171,29 @@ class RobotControl(object):
         return transformed_markers
 
     def marker_update(self, side=CAMERA):
+        """Update markers detected by the camera."""
         if self.cam_on:
             current_frame = self.camera.get_img(side)
-            corners, ids = self.camera.detect_markers(frame=current_frame, ARUCO_DICT=ARUCO_DICT, show=True, save_image=True)
+            corners, ids = self.camera.detect_markers(frame=current_frame, ARUCO_DICT=ARUCO_DICT, show=True,
+                                                      save_image=True)
             attempt = 0
             while ids is None:
                 rospy.sleep(0.05)
-                corners, ids = self.camera.detect_markers(frame=self.camera.get_img(side), ARUCO_DICT=ARUCO_DICT, save_image=True)
+                corners, ids = self.camera.detect_markers(frame=self.camera.get_img(side), ARUCO_DICT=ARUCO_DICT,
+                                                          save_image=True)
                 attempt += 1
                 rospy.sleep(0.05)
                 if attempt > 20:
-                    raise ValueError(f"expected 1 markers but found markers {ids} in the current image.")
+                    raise ValueError(f"Expected 1 markers but found markers {ids} in the current image.")
             self.camera.locate_markers(corners, ids)
 
     def all_update(self):
+        """Update markers and world positions."""
         self.marker_update()
         self.update_world_positions()
 
     def workspace_constraint(self):
-        # http://docs.ros.org/en/jade/api/moveit_commander/html/classmoveit__commander_1_1move__group_1_1MoveGroupCommander.html#ad7f6d93d73bf43268ba983afb0dc4f23
-        # https://ros-planning.github.io/moveit_tutorials/doc/planning_with_approximated_constraint_manifolds/planning_with_approximated_constraint_manifolds_tutorial.html
-        # https://ros-planning.github.io/moveit_tutorials/doc/motion_planning_api/motion_planning_api_tutorial.html
-        # https://cram-system.org/tutorials/intermediate/collisions_and_constraints
-        # https://python.hotexamples.com/examples/shape_msgs.msg/SolidPrimitive/-/python-solidprimitive-class-examples.html
-        # https://answers.ros.org/question/174095/end-effector-pose-constrained-planning/
-        # https://groups.google.com/g/moveit-users/c/rPaxNoawSFc
-
+        """Define workspace constraints for the robot arm."""
         box_constraint = PositionConstraint()
         box_constraint.header = self.commander.get_current_pose().header
         box_constraint.link_name = ROBOT + "_link8"
@@ -204,7 +206,7 @@ class RobotControl(object):
         pose = Pose()
         pose.position.x = 0.5
         pose.position.y = 0
-        pose.position.z = 0.5 #+ self.board_height
+        pose.position.z = 0.5
         pose.orientation.x = 0
         pose.orientation.y = 0
         pose.orientation.z = 0
@@ -219,6 +221,7 @@ class RobotControl(object):
         self.constraints.position_constraints.append(box_constraint)
 
     def upright_constraints(self):
+        """Define upright constraints for the robot arm."""
         orientation_constraint = OrientationConstraint()
         orientation_constraint.header = self.commander.get_current_pose().header
         orientation_constraint.link_name = ROBOT + "_link8"
@@ -226,9 +229,9 @@ class RobotControl(object):
         orientation_constraint.orientation.y = -0.3826834
         orientation_constraint.orientation.z = 0
         orientation_constraint.orientation.w = 0
-        orientation_constraint.absolute_x_axis_tolerance = 0.1 #0.05
-        orientation_constraint.absolute_y_axis_tolerance = 0.1 #0.05
-        orientation_constraint.absolute_z_axis_tolerance = 0.1 #0.05  # =3.14 ignores this axis
+        orientation_constraint.absolute_x_axis_tolerance = 0.1
+        orientation_constraint.absolute_y_axis_tolerance = 0.1
+        orientation_constraint.absolute_z_axis_tolerance = 0.1
         orientation_constraint.weight = 1
 
         self.constraints.orientation_constraints.append(orientation_constraint)
@@ -259,11 +262,11 @@ class RobotControl(object):
             rospy.sleep(0.1)
         rospy.loginfo("Completed camera run for a short duration.")
 
-
     def init_constraints(self, workspace=True, upright=True):
+        """Initialize constraints for the robot arm."""
         self.commander.clear_path_constraints()
         self.constraints = Constraints()
-        self.constraints.name = "robot contraints"
+        self.constraints.name = "robot constraints"
         if workspace:
             self.workspace_constraint()
         if upright:
@@ -272,6 +275,7 @@ class RobotControl(object):
         self.commander.set_path_constraints(self.constraints)
 
     def move_ready_state(self, acc=None, vel=None):
+        """Move the robot to the ready state."""
         if acc is None:
             acc = RobotControl.robot_acc
         if vel is None:
@@ -283,6 +287,7 @@ class RobotControl(object):
         self.commander.go(wait=True)
 
     def move_camera_state(self, acc=None, vel=None, joint_position=LOW_CAM_JOINTS):
+        """Move the robot to the camera state."""
         if acc is None:
             acc = RobotControl.robot_acc
         if vel is None:
@@ -291,29 +296,27 @@ class RobotControl(object):
         self.commander.set_max_acceleration_scaling_factor(acc)
         self.commander.set_max_velocity_scaling_factor(vel)
         self.commander.go(joint_goal, wait=True)
-    
 
     def move_camera_state_low(self, acc=None, vel=None):
+        """Move the robot to the low camera state."""
         self.move_camera_state(acc, vel, joint_position=LOW_CAM_JOINTS)
 
     def move_camera_state_place(self, acc=None, vel=None):
+        """Move the robot to the place camera state."""
         self.move_camera_state(acc, vel, joint_position=HIGH_CAM_JOINTS)
 
     def execute_path(self, waypoints, acc=None, vel=None):
-        # Set default acceleration and velocity if not provided
+        """Execute a path based on the provided waypoints."""
         acc = acc if acc is not None else RobotControl.robot_acc
         vel = vel if vel is not None else RobotControl.robot_vel
 
-        # Set the robot's motion scaling factors
         self.commander.set_max_acceleration_scaling_factor(acc)
         self.commander.set_max_velocity_scaling_factor(vel)
 
-        # Define jump thresholds for testing path completion
         jump_thresholds = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
         max_attempts = 10
         fraction = 0.0
 
-        # Attempt to compute a complete Cartesian path
         for jump_threshold in jump_thresholds:
             plan, fraction = self.commander.compute_cartesian_path(
                 waypoints, 0.01, jump_threshold, avoid_collisions=True)
@@ -321,7 +324,6 @@ class RobotControl(object):
             if fraction >= 1.0:
                 break
 
-        # If the path is not complete, retry up to max_attempts times
         attempts = 0
         while fraction < 1.0 and attempts < max_attempts:
             plan, fraction = self.commander.compute_cartesian_path(
@@ -329,7 +331,6 @@ class RobotControl(object):
             attempts += 1
             rospy.loginfo(f"Attempt {attempts}: Computed fraction {fraction}")
 
-        # Execute the path if a substantial portion can be planned
         if fraction >= 0.6:
             rospy.loginfo("Executing planned Cartesian path")
             plan = self.commander.retime_trajectory(
@@ -342,16 +343,15 @@ class RobotControl(object):
             return False
 
     def move_gripper(self, command="open"):
+        """Move the gripper to open or close position."""
         self.move_client.wait_for_server()
         if command == "close":
             goal = MoveGoal(width=-GRASP_WIDTH, speed=GOALSPEED)
         elif command == "open":
             goal = MoveGoal(width=GRASP_WIDTH, speed=GOALSPEED)
         else:
-            raise ValueError("grasp goal should be close or open")
+            raise ValueError("Grasp goal should be 'close' or 'open'")
         self.move_client.send_goal(goal)
-        #self.move_client.wait_for_result(rospy.Duration.from_sec(5.0))
-        #return self.move_client.get_result().success
         if not self.move_client.wait_for_result(rospy.Duration.from_sec(5.0)):
             rospy.logerr(f"Action server timed out while trying to {command} the gripper.")
             return False  # Indicate failure
@@ -362,6 +362,7 @@ class RobotControl(object):
         return result.success
 
     def grasp(self, command):
+        """Grasp an object with the gripper."""
         self.grasp_client.wait_for_server()
         if command == "close":
             if self.gripper_is_open:  # Check if the gripper is open before trying to close it.
@@ -380,13 +381,13 @@ class RobotControl(object):
             if res:
                 self.gripper_is_open = True
         else:
-            raise ValueError("grasp goal should be close or open")
+            raise ValueError("Grasp goal should be 'close' or 'open'")
         if not self.ignore_grasp_error and not res:
             raise rospy.ROSInterruptException(f"{command} failed")
         return res
 
     def move_to_pose(self, target_pose):
-        """Moves the robot to a specific pose."""
+        """Move the robot to a specific pose."""
         waypoints = [copy.deepcopy(target_pose)]
         if self.execute_path(waypoints):
             rospy.loginfo(
@@ -397,7 +398,7 @@ class RobotControl(object):
             return False
 
     def move_to_marker(self, marker_id):
-        """Moves the robot to the specified ArUco marker."""
+        """Move the robot to the specified ArUco marker."""
         marker_pos = self._markers_world[marker_id]
         target_pose = self.commander.get_current_pose().pose
         target_pose.position.x = marker_pos[0]
@@ -406,8 +407,7 @@ class RobotControl(object):
         return self.move_to_pose(target_pose)
 
     def pick(self, marker_id):
-        """Picks up an object at a specified marker."""
-        # Move down to pick the object
+        """Pick up an object at a specified marker."""
         target_pose = self.commander.get_current_pose().pose
         target_pose.position.z -= 0.07
         if self.move_to_pose(target_pose):
@@ -420,21 +420,19 @@ class RobotControl(object):
             rospy.logerr("Failed to pick the object at marker {marker_id}")
 
     def place(self, marker_id):
-        """Places an object at a specified marker."""
+        """Place an object at a specified marker."""
         target_pose = self.commander.get_current_pose().pose
         target_pose.position.x += 0.045
         self.move_to_pose(target_pose)
-        #if self.move_to_pose(target_pose):
-            #self.grasp("close")
-            #rospy.sleep(1)
-            #rospy.loginfo(f"Object placed at marker {marker_id}")
-        #else:
-            #rospy.logerr("Failed to place the object at marker {marker_id}")
+        if self.move_to_pose(target_pose):
+            self.grasp("close")
+            rospy.sleep(1)
+            rospy.loginfo(f"Object placed at marker {marker_id}")
+        else:
+            rospy.logerr("Failed to place the object at marker {marker_id}")
 
     def push(self, marker_id, directions):
-        """Pushes an object at a specified marker."""
-
-        # Move down to pick the object
+        """Push an object at a specified marker."""
         target_pose = self.commander.get_current_pose().pose
         target_pose.position.z -= 0.15
         if not self.move_to_pose(target_pose):
@@ -445,7 +443,6 @@ class RobotControl(object):
         rospy.sleep(1)  # Wait to ensure grip has stabilized
 
         for direction in directions:
-            # Calculate the new position based on direction
             if direction == 'forward':
                 target_pose.position.x += 0.05
             elif direction == 'backward':
@@ -455,7 +452,6 @@ class RobotControl(object):
             elif direction == 'right':
                 target_pose.position.y -= 0.05
 
-            # Execute the push
             if not self.move_to_pose(target_pose):
                 rospy.logerr(f"Failed to push the object {direction} at marker {marker_id}")
                 break
@@ -466,7 +462,7 @@ class RobotControl(object):
         self.move_to_pose(target_pose)
 
     def opendrawer(self, marker_id):
-        """Places an object at a specified marker."""
+        """Open a drawer at a specified marker."""
         self.commander.set_max_velocity_scaling_factor(0.05)
         self.commander.set_max_acceleration_scaling_factor(0.05)
 
@@ -489,40 +485,32 @@ class RobotControl(object):
 
     def run_task_sequence(self, json_path):
         """
-        Executes a sequence of tasks specified in a JSON file using robot motion primitives.
-        The JSON file should contain a structured definition of tasks, where each task corresponds to a function within the RobotMotionPrimitives class.
+        Execute a sequence of tasks specified in a JSON file using robot motion primitives.
 
         Parameters:
         - json_path (str): The file path to the JSON file containing the task sequence.
-        Effect:
-        - The method directly triggers actions in the robotic system based on the tasks specified in the JSON file.
         """
-
-        # Load the task sequence from the JSON file
         with open(json_path, 'r') as file:
             data = json.load(file)
             task_sequence = data['task_cohesion']['task_sequence']
 
-        # Iterate through the task sequence and execute each function
         for task in task_sequence:
-            # Using regular expression to parse the function name and arguments
             match = re.match(r"(\w+)\((.*)\)", task)
             if match:
                 function_name, args_str = match.groups()
-                args = eval(f"[{args_str}]")  # This will convert argument string to actual arguments
+                args = eval(f"[{args_str}]")
 
-                # Check if the function exists in the RobotControl class
                 if hasattr(self, function_name):
                     func = getattr(self, function_name)
                     print(f'Executing {function_name} with arguments {args}...')
-                    func(*args)  # Dynamically call the function with unpacked arguments
+                    func(*args)
                 else:
                     print(f'Function {function_name} not found in RobotControl.')
             else:
                 print(f"Could not parse the task: {task}")
 
-
     def run(self):
+        """Run the main control loop."""
         self.all_update()
         self.init_constraints()
 
@@ -531,24 +519,20 @@ class RobotControl(object):
             '--scenario',
             type=str,
             required=True,
-            help='scenario name (see the code for details)')
+            help='Scenario name (see the code for details)')
         args = parser.parse_args()
         scenario_name = args.scenario
 
-        image_path = "/home/leonoor/MRIRAC_Leonoor/src/rcdt_LLM_fr3/MRIRAC_control/out/demo/detected_markers.jpg"
+        image_path = os.path.join('..', 'out', 'demo', 'detected_markers.jpg')
 
-        # Initialize the model and generate the environment description
         aimodel = ChatGPT(credentials, prompt_load_order=prompt_load_order)
         environment_json = aimodel.generate_environment(image_path)
-        #print("Raw environment data:", environment_json)
 
         try:
             environment = json.loads(environment_json)
-            #print("Environment loaded:", json.dumps(environment, indent=4))
         except json.JSONDecodeError as e:
             print("Failed to decode JSON:", e)
 
-        # Get user feedback and possibly refine the environment
         while True:
             user_feedback = input('Feedback for environment (return empty if satisfied, type "q" to quit): ')
             if user_feedback.lower() == 'q':
@@ -561,14 +545,12 @@ class RobotControl(object):
                 environment = json.loads(environment_json)
                 print("Refined environment:", json.dumps(environment, indent=4))
 
-        # Proceed to receive and process instructions
-        if not os.path.exists('./out/' + scenario_name):
-            os.makedirs('./out/' + scenario_name)
+        if not os.path.exists(os.path.join('./out', scenario_name)):
+            os.makedirs(os.path.join('./out', scenario_name))
 
         instructions = [input("Enter the arm instructions: ")]
         for i, instruction in enumerate(instructions):
             response = aimodel.generate(instruction, environment, is_user_feedback=False)
-            #print("Initial response:", response)
             while True:
                 user_feedback = input('User feedback (return empty if satisfied, type "q" to quit): ')
                 if user_feedback.lower() == 'q':
@@ -577,12 +559,12 @@ class RobotControl(object):
                     break
                 else:
                     response = aimodel.generate(user_feedback, environment, is_user_feedback=True)
-                    #print("Updated response:", response)
 
             aimodel.dump_json(f'./out/{scenario_name}/{i}')
 
-        json_path = '/home/leonoor/MRIRAC_Leonoor/src/rcdt_LLM_fr3/MRIRAC_control/out/demo/0.json'
+        json_path = os.path.join('..', 'out', 'demo', '0.json')
         self.run_task_sequence(json_path)
+
 
 if __name__ == "__main__":
     try:
