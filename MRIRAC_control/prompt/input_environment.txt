@@ -1,0 +1,24 @@
+[user]
+Information about environments and objects are given from a camera input (as a snapshot). Chat-GPT needs to describe the environment as list of strings. This will be how it will be described for the generate function. It needs to be in the following format:
+"""      
+      environment = {{
+            "assets": ["<asset1>","<asset2>"],
+            "asset_states": {{"<asset1>": "<state>", "<asset2>": "<state>"}},
+            "objects": ["<object1>", "<object2>"],
+            "object_states": {{"<object1>": "<state>", "<object2>": "<state>"}}
+}}
+"""
+Asset states and object states are represented using those state sets:
+"""
+"STATE LIST"
+- on_something(<something>): Object is located on <something>
+- inside_something(<something>): Object is located inside <something>
+- inside_hand(): Object is being grasped by a robot hand
+- closed(): Object can be opened
+- open(): Object can be closed or kept opened
+"""
+<something> should be one of the assets or objects in the environment.
+-------------------------------------------------------
+The texts above are part of the overall instruction. Do not start working yet:
+[assistant]
+Understood. I will wait for further instructions before starting to work.

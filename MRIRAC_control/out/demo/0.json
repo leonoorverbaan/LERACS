@@ -1,0 +1,89 @@
+{
+    "task_cohesion": {
+        "task_sequence": [
+            "all_update()",
+            "init_constraints()",
+            "move_to_marker(\"0\")",
+            "opendrawer(\"0\")",
+            "move_to_marker(\"4\")",
+            "opendrawer(\"4\")",
+            "move_to_marker(\"2\")",
+            "grasp(\"open\")",
+            "pick(\"2\")",
+            "move_to_marker(\"0\")",
+            "place(\"0\")",
+            "grasp(\"open\")",
+            "move_camera_state_low()"
+        ],
+        "step_instructions": [
+            "update the marker and world positions.",
+            "initialize constraints.",
+            "move the end-effector to the fuse holder with marker ID 0.",
+            "open the drawer of the fuse holder with marker ID 0.",
+            "move the end-effector to the fuse holder with marker ID 4.",
+            "open the drawer of the fuse holder with marker ID 4.",
+            "move the end-effector to the dummy fuse with marker ID 2.",
+            "open the gripper.",
+            "pick the dummy fuse with marker ID 2.",
+            "move the end-effector to the fuse holder with marker ID 0.",
+            "place the dummy fuse in the fuse holder with marker ID 0.",
+            "open the gripper.",
+            "move the end-effector to the low camera position."
+        ],
+        "object_name": [
+            "<fuse_holder(marker_id:\"0\")>",
+            "<fuse_holder(marker_id:\"4\")>",
+            "<fuse_rail>",
+            "<busbars>",
+            "dummy_fuse(marker_id:\"2\")"
+        ]
+    },
+    "environment_before": {
+        "assets": [
+            "<table>",
+            "<floor>"
+        ],
+        "asset_states": {
+            "<table>": "on_something(<floor>)"
+        },
+        "objects": [
+            "<fuse_holder(marker_id:\"0\")>",
+            "<fuse_holder(marker_id:\"4\")>",
+            "<fuse_rail>",
+            "<busbars>",
+            "dummy_fuse(marker_id:\"2\")"
+        ],
+        "object_states": {
+            "<fuse_holder(marker_id:\"0\")>": "closed()",
+            "<fuse_holder(marker_id:\"4\")>": "open()",
+            "<fuse_rail>": "on_something(<table>)",
+            "<bus_bars>": "on_something(<fuse_rail>)",
+            "<dummy_fuse(marker_id:\"2\")>": "on_something(<fuse_rail>)"
+        }
+    },
+    "environment_after": {
+        "assets": [
+            "<table>",
+            "<floor>"
+        ],
+        "asset_states": {
+            "<table>": "on_something(<floor>)"
+        },
+        "objects": [
+            "<fuse_holder(marker_id:\"0\")>",
+            "<fuse_holder(marker_id:\"4\")>",
+            "<fuse_rail>",
+            "<busbars>",
+            "dummy_fuse(marker_id:\"2\")"
+        ],
+        "object_states": {
+            "<fuse_holder(marker_id:\"0\")>": "open()",
+            "<fuse_holder(marker_id:\"4\")>": "open()",
+            "<fuse_rail>": "on_something(<table>)",
+            "<bus_bars>": "on_something(<fuse_rail>)",
+            "<dummy_fuse(marker_id:\"2\")>": "on_something(<fuse_holder(marker_id:\"0\")>)"
+        }
+    },
+    "instruction_summary": "Can you prepare the fuse holders and then place the dummy fuse in the middle holder?",
+    "question": ""
+}

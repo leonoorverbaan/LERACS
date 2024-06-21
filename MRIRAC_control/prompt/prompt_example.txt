@@ -1,0 +1,153 @@
+[user]
+I will give you some examples of the input and the output you will generate. 
+Example 1:
+"""
+- Input:
+{"assets":["<table>", "<floor>"],
+"asset_states": {"<table>": "on_something(<floor>)"},
+"objects": ["<fuse_holder(marker_id:\"1\")>", "<fuse_holder(marker_id:\"0\")>", "<fuse_holder(marker_id:\"4\")>", "<fuse_rail>", "<busbars>", "dummy_fuse(marker_id:\"2\")"],
+"object_states": {"<fuse_holder(marker_id:\"1\")>": "closed()",
+                  "<fuse_holder(marker_id:\"0\")>": "closed()",
+                  "<fuse_holder(marker_id:\"4\")>": "open()",
+                  "<fuse_rail>": "on_something(<table>)",
+                  "<bus_bars>": "on_something(<fuse_rail>)",
+                  "<dummy_fuse(marker_id:\"2\")>": "on_something(<fuse_rail>)"
+},
+"instruction": "Can you make the fuse holders ready to switch fuses?"}
+- Output:
+```
+{
+    "task_cohesion": {
+        "task_sequence": [
+            "all_update()",
+            "init_constraints()",
+            "move_to_marker(\"2\")",
+            "grasp(\"open\")",
+            "opendrawer(\"2\")",
+            "move_to_marker(\"1\")",
+            "opendrawer(\"1\")",
+            "move_camera_state_low()"
+        ],
+        "step_instructions": [
+            "update the marker and world positions.",
+            "initialize constraints.",
+            "move the end-effector to the object.",
+            "open the gripper.",
+            "open the drawer of the object.",
+            "move the end-effector to the object",
+            "open the drawer of the object.",
+            "move the end-effector to the low camera position."
+        ],
+        "object_name": ["<fuse_holder(marker_id:\"1\")>", "<fuse_holder(marker_id:\"0\")>", "<fuse_holder(marker_id:\"4\")>", "<fuse_rail>", "<busbars>", "dummy_fuse(marker_id:\"2\")"]
+    },
+    "environment_before": {
+        "assets": ["<table>", "<floor>"],
+        "asset_states": {
+            "<table>": "on_something(<floor>)"
+        },
+        "objects": ["<fuse_holder(marker_id:\"1\")>", "<fuse_holder(marker_id:\"0\")>", "<fuse_holder(marker_id:\"4\")>", "<fuse_rail>", "<busbars>", "dummy_fuse(marker_id:\"2\")"],
+        "object_states": {"<fuse_holder(marker_id:\"1\")>": "closed()",
+                  "<fuse_holder(marker_id:\"0\")>": "closed()",
+                  "<fuse_holder(marker_id:\"4\")>": "open()",
+                  "<fuse_rail>": "on_something(<table>)",
+                  "<bus_bars>": "on_something(<fuse_rail>)",
+                  "<dummy_fuse(marker_id:\"2\")>": "on_something(<fuse_rail>)"
+        }
+    },
+    "environment_after": {
+        "assets": ["<table>", "<floor>"],
+        "asset_states": {
+            "<table>": "on_something(<floor>)"
+        },
+        "objects": ["<fuse_holder(marker_id:\"1\")>", "<fuse_holder(marker_id:\"0\")>", "<fuse_holder(marker_id:\"4\")>", "<fuse_rail>", "<busbars>", "dummy_fuse(marker_id:\"2\")"],
+        "object_states": {"<fuse_holder(marker_id:\"1\")>": "open()",
+                  	   "<fuse_holder(marker_id:\"0\")>": "open()",
+                  	   "<fuse_holder(marker_id:\"4\")>": "open()",
+                  	   "<fuse_rail>": "on_something(<table>)",
+                  	   "<bus_bars>": "on_something(<fuse_rail>)",
+                  	   "<dummy_fuse(marker_id:\"2\")>": "on_something(<fuse_rail>)"
+        }
+    },
+    "instruction_summary": "Can you make the fuse holders ready to switch fuses?",
+    "question": ""
+}
+```
+
+Example 1:
+"""
+- Input:
+{"assets":["<table>", "<floor>"],
+"asset_states": {"<table>": "on_something(<floor>)"},
+"objects": ["<fuse_holder(marker_id:\"1\")>", "<fuse_holder(marker_id:\"0\")>", "<fuse_holder(marker_id:\"4\")>", "<fuse_rail>", "<busbars>", "dummy_fuse(marker_id:\"2\")"],
+"object_states": {"<fuse_holder(marker_id:\"1\")>": "closed()",
+                  "<fuse_holder(marker_id:\"0\")>": "closed()",
+                  "<fuse_holder(marker_id:\"4\")>": "open()",
+                  "<fuse_rail>": "on_something(<table>)",
+                  "<bus_bars>": "on_something(<fuse_rail>)",
+                  "<dummy_fuse(marker_id:\"2\")>": "on_something(<fuse_rail>)"
+},
+"instruction": "Can you switch the fuse in the available fuse holder?"}
+- Output:
+```
+{
+    "task_cohesion": {
+        "task_sequence": [
+            "all_update()",
+            "init_constraints()",
+            "move_to_marker(\"2\")",
+            "grasp(\"open\")",
+            "pick(\"2\")",
+            "move_to_marker(\"4\")",
+            "place(\"1\")",
+            "move_camera_state_low()"
+        ],
+        "step_instructions": [
+            "update the marker and world positions.",
+            "initialize constraints.",
+            "move the end-effector to the object.",
+            "open the gripper.",
+            "open the drawer of the object.",
+            "move the end-effector to the object",
+            "open the drawer of the object.",
+            "move the end-effector to the low camera position."
+        ],
+        "object_name": ["<fuse_holder(marker_id:\"1\")>", "<fuse_holder(marker_id:\"0\")>", "<fuse_holder(marker_id:\"4\")>", "<fuse_rail>", "<busbars>", "dummy_fuse(marker_id:\"2\")"]
+    },
+    "environment_before": {
+        "assets": ["<table>", "<floor>"],
+        "asset_states": {
+            "<table>": "on_something(<floor>)"
+        },
+        "objects": ["<fuse_holder(marker_id:\"1\")>", "<fuse_holder(marker_id:\"0\")>", "<fuse_holder(marker_id:\"4\")>", "<fuse_rail>", "<busbars>", "dummy_fuse(marker_id:\"2\")"],
+        "object_states": {"<fuse_holder(marker_id:\"1\")>": "closed()",
+                  "<fuse_holder(marker_id:\"0\")>": "closed()",
+                  "<fuse_holder(marker_id:\"4\")>": "open()",
+                  "<fuse_rail>": "on_something(<table>)",
+                  "<bus_bars>": "on_something(<fuse_rail>)",
+                  "<dummy_fuse(marker_id:\"2\")>": "on_something(<fuse_rail>)"
+        }
+    },
+    "environment_after": {
+        "assets": ["<table>", "<floor>"],
+        "asset_states": {
+            "<table>": "on_something(<floor>)"
+        },
+        "objects": ["<fuse_holder(marker_id:\"1\")>", "<fuse_holder(marker_id:\"0\")>", "<fuse_holder(marker_id:\"4\")>", "<fuse_rail>", "<busbars>", "dummy_fuse(marker_id:\"2\")"],
+        "object_states": {"<fuse_holder(marker_id:\"1\")>": "open()",
+                  	   "<fuse_holder(marker_id:\"0\")>": "open()",
+                  	   "<fuse_holder(marker_id:\"4\")>": "open()",
+                  	   "<fuse_rail>": "on_something(<table>)",
+                  	   "<bus_bars>": "on_something(<fuse_rail>)",
+                  	   "<dummy_fuse(marker_id:\"2\")>": "on_something(<fuse_holder(marker_id:\"4\")>)"
+        }
+    },
+    "instruction_summary": "Can you switch the fuse in the available fuse holder?",
+    "question": ""
+}
+
+"""
+From these examples, learn that some robotic actions have dependencies with the actions before and after them.
+-------------------------------------------------------
+The texts above are part of the overall instruction. Do not start working yet:
+[assistant]
+Understood. I will wait for further instructions before starting to work.

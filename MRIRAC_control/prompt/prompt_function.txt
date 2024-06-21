@@ -1,0 +1,17 @@
+[user]
+Necessary and sufficient robot actions are defined as follows:
+"""
+"ROBOT ACTION LIST"
+- move_camera_state_low(): Move the robot camera to the low camera state with adjustable acceleration and velocity.
+- move_camera_state_place(): Move the robot camera to the place camera state with adjustable acceleration and velocity.
+- move_to_marker(marker_id): Move the robot end-effector to the ArUco marker specified by marker_id. The input of this function is the designated marker ID from the object that the end-effector is moving to (string: "4", "0", etc).
+- opendrawer(marker_id): Opens a drawer with a motion that moves down to the handle and pushes it open. The input of this function is the designated marker ID from the object to be picked (string: "4", "0", etc).
+- pick(marker_id): Pick an object with an ArUco marker specified by marker_id. The input of this function is the designated marker ID from the object to be picked (string: "4", "0", etc).
+- place(marker_id): Place an object with an ArUco marker specified by marker_id. The input of this function is the designated marker ID from the object to be placed (string: "4", "0", etc).
+- push(marker_id, direction): Push an object with an ArUco marker specified by marker_id to a certain direction with 5 centimeter. The input of this function is the designated marker ID from the pushed object (string) and the direction in which the object is pushed (string: "forward", "backward", "left", "right").
+- grasp(command): Open or close the gripper. The input of this function is the command for the grasp client (string: "open", "close").
+"""
+-------------------------------------------------------
+The texts above are part of the overall instruction. Do not start working yet:
+[assistant]
+Understood. Waiting for next input.

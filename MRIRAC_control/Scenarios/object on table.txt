@@ -1,0 +1,14 @@
+# 1. example of moving objects on the table and the shelf
+   if scenario_name == 'object on table':
+        environment = {
+            "assets": [
+                "<table>",
+                "<floor>"],
+            "asset_states": {
+                "<table>": "on_something(<floor>)"},
+            "objects": [
+                "<box>"],
+            "object_states": {
+                "<box>": "on_something(<table>)"}}
+        instructions = ['Pick up the object from the table',
+                        'Move the robot arm back to home state']

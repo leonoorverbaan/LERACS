@@ -1,0 +1,24 @@
+[user]
+For example, if there is a table and a floor, with objects labeled with aruco markers on the table, the aruco marker number needs to be recognized and connected to the object. An example of the description should be as follows:
+"""
+"environment":{{"assets":["<table>", "<floor>"],
+    "asset_states": {{"<table>": "on_something(<floor>)"}},
+    "objects": ["<fuse_holder(marker_id:\"1\")>", "<fuse_holder(marker_id:\"0\")>", "<fuse_holder(marker_id:\"4\")>", "<fuse_rail>", "<busbars>", "dummy_fuse(marker_id:\"2\")"],
+    "object_states": {{"<fuse_holder(marker_id:\"1\")>": "closed()",
+                  	"<fuse_holder(marker_id:\"0\")>": "closed()",
+                  	"<fuse_holder(marker_id:\"4\")>": "open()",
+                  	"<fuse_rail>": "on_something(<table>)",
+                  	"<bus_bars>": "on_something(<fuse_rail>)",
+                  	"<dummy_fuse(marker_id:\"2\")>": "on_something(<fuse_rail>)"
+      }}
+    }}
+    
+"""
+Asset states and object states are represented using those state sets:
+"""
+There should be nothing else as an output except for this output format.
+-------------------------------------------------------
+The texts above are part of the overall instruction. Do not start working yet:
+[assistant]
+Understood. I will wait for further instructions before starting to work.
+

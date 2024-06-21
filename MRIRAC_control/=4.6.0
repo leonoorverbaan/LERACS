@@ -1,0 +1,7 @@
+Defaulting to user installation because normal site-packages is not writeable
+Collecting opencv-python
+  Using cached opencv_python-4.9.0.80-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (20 kB)
+Requirement already satisfied: numpy>=1.17.0 in /home/leonoor/.local/lib/python3.8/site-packages (from opencv-python) (1.24.4)
+Using cached opencv_python-4.9.0.80-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (62.2 MB)
+Installing collected packages: opencv-python
+Successfully installed opencv-python-4.9.0.80
