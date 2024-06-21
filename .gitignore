@@ -1,0 +1,11 @@
+# Ignore build and development directories
+build/
+devel/
+
+# Ignore Python bytecode and editor swap files
+*.pyc
+*.swp
+
+# Ignore IDE and editor configurations
+.vscode/
+.idea/
