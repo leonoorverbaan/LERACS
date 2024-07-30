@@ -15,11 +15,11 @@ customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "gre
 
 
 # Ensure the directory of robot_control.py is in the path
-sys.path.append('/home/leonoor/MRIRAC_Leonoor/src/rcdt_LLM_fr3/MRIRAC_control')
-sys.path.append('/home/leonoor/MRIRAC_Leonoor/src/rcdt_LLM_fr3/GroundingDINO')
+sys.path.append(os.path.join(os.path.dirname(__file__), 'MRIRAC_control'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'GroundingDINO'))
 
 from robot_control import RobotControl
-from task_decomposition import ChatGPT
+from ChatGPT_init import ChatGPT
 
 with open('secrets.json') as f:
     credentials = json.load(f)
@@ -157,7 +157,8 @@ class RobotControlUI(customtkinter.CTk):
         self.user_input.bind("<Return>", self.process_environment_feedback)
 
         self.bind("<Escape>", self.close_window)
-        self.image_path = "/home/allianderai/LLM-franka-control-rt/src/rcdt_LLM_fr3/MRIRAC_control/out/demo/detected_markers.jpg"
+        self.image_path = os.path.join(os.path.dirname(__file__), 'MRIRAC_control', 'out', 'demo',
+                                       'detected_markers.jpg')
 
         self.loading_label = customtkinter.CTkLabel(self, text="Loading...", font=label_font, text_color="#6EA8E5")
         self.loading_label.grid(row=0, column=1, padx=20, pady=10)

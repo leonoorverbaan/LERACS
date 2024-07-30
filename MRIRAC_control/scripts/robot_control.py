@@ -7,8 +7,8 @@ import re
 import argparse
 import os
 import json
-from task_decomposition import ChatGPT
-from camera_calibration import Camera, ARUCO_DICT
+from ChatGPT_init import ChatGPT
+from camera_init import Camera, ARUCO_DICT
 from scipy.spatial.transform import Rotation
 import rospy
 import moveit_commander
