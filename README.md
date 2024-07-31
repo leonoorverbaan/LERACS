@@ -80,14 +80,13 @@ Experiments about setting and task instruction complexity have been performed on
 
 The robot interface consists of two primary areas: the **chat area** and the **robot vision area** (snapshot). The chat area allows users to communicate with the robot, receiving textual responses, while the robot vision area provides visual feedback by displaying snapshots taken by the robot. A feedback mechanism is integrated into both the robot vision method and the robot control method. This mechanism presents feedback in the chat area, reflecting the robot’s current status and actions. The interface includes additional functionalities through various buttons. These buttons enable users to start the Franka robot system (making a snapshot and initializing the back end), reinitialize the robot control node, refresh the user interface, run the detection to display manipulable objects, and change the camera index. The user interface, developed using Tkinter, serves as the connection to the back end, handling camera commands, task decomposition, and environmental interpretation facilitated by ChatGPT.
 
-![System Flowchart](Images/System.png)
+![System Experiment](Images/System.png)
 
 Next to the experiments a case studies has been performed: **switching fuses on voltage racks**. The user provides the instruction **"Can you prepare the fuse holders and then place the dummy fuse in the middle holder"** in the LERACS interface.
 
-<div style="display: flex; flex-direction: row;">
-    <img src="Images/systemAlliander.png" alt="System Flowchart" width="45%">
-    <img src="Images/Alliander_sequence.png" alt="Another Image" width="45%" style="margin-left: 10px;">
-</div>
+![System use case](Images/systemAlliander.png)
+
+![Sequence use case](Images/Alliander_sequence.png)
 
 
 ## Credits
