@@ -76,6 +76,9 @@ sed -i -e 's/panda_link0/fr3_link0/g' $1/src/panda_moveit_config/launch/moveit.r
 sed -i -e '5i<arg name="arm_id" default="fr3"/>' $1/src/panda_moveit_config/launch/franka_control.launch
 sed -i -e '6i<arg name="robot" default="fr3"/>' $1/src/panda_moveit_config/launch/franka_control.launch
 
+## Install additional pip requirements
+pip install openai==0.28.1 tiktoken
+
 ## Source the package
 source devel/setup.bash
 

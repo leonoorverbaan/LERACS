@@ -10,12 +10,17 @@ The system that is designed, abbreviated for simplicity LERACS, provides a visio
 ### Required hardware:
 - Franka Emika Research 3 Robot arm
 - External PC (Ubuntu 20.04)
-- Objects with ArUco markers
+- ZED 2 Camera mounted on flanch
+- Objects with ArUco markers (marker_size=0.04)
+	- DICT_5X5_50
+	- DICT_5X5_100
+	- DICT_5X5_250
+	- DICT_5X5_1000
 
 ### Franka Emika Research 3 Robot
 1. Mount the robot securely to a flat surface.
 2. Connect the power cable and the controller to the robot.
-3. Power on the robot, connect the Ethernet cable to the external PC and go to the interface of the IP address.
+3. Power on the robot, connect the Ethernet cable to the external PC and go to the interface of the IP address. Connect usb camera to the external PC as well and identify the camera index.
 4. Unlock all the joints and activate the FCI.
 
 ### External PC (Ubuntu 20.04)
@@ -31,22 +36,58 @@ This project was developed using ROS Noetic. It may work with other ROS releases
 
 
 
-## Installation
-
+## Installation 
 1. Create a new workspace directory that includes a `src` directory.
 2. Clone the following repositories into the same `catkin_ws`:
 
     ```sh
     mkdir ~/catkin_ws/src
     cd ~/catkin_ws/src
-    git clone git@github.com:Alliander/LERACS.git
+    git clone git@github.com:leonoorverbaan/LERACS.git
     cd LERACS.git
     sh install.sh ~/path/to/catkin_ws
     ```
 
-3. Test the setup by running `roslaunch mrirac fr3_sim.launch`. This launches the Gazebo simulation.
+3. Source the terminal with source `/opt/ros/noetic/setup.bash` and `~/catkin_ws/devel/setup.bash`. Test the setup by running `roslaunch ROS fr3_sim.launch`. This launches the Gazebo simulation.
 
 If the setup was successful, you should be able to set a pose goal using the rviz interface and the simulated robot will move to that position once `plan` and `execute` is pressed.
+
+4. For running the setup on the real robot arm you can run `roslaunch ROS fr3_real.launch robot_ip:=<IP_ADRESS> load_gripper:=true`
+
+
+
+## How to use
+
+1. Then, go to a subfolder in [LERACS_CONTROL/](LERACS_CONTROL/).
+
+2. Sample codes are provided for using ChatGPT through [OpenAI API](https://beta.openai.com/). Fill in the [secrets.json](secrets.json) with your credential information. Even if you do not have a subscription, you can try it out by copying and pasting the prompts into the [OpenAI's interface](https://platform.openai.com/examples).
+
+
+
+3. Run the following command to run the whole LERACS system:
+
+    ```sh
+    python UI.py
+    ```
+
+4. More details about the contents of this subfolder can be found in [LERACS_CONTROL/](LERACS_CONTROL/) on this Github.
+
+
+##Example use case
+Experiments about setting and task instruction complexity have been performed on LERACS. The following is a visualization of the interface with all of LERACS components in use.
+
+
+
+The robot interface consists of two primary areas: the **chat area** and the **robot vision area** (snapshot). The chat area allows users to communicate with the robot, receiving textual responses, while the robot vision area provides visual feedback by displaying snapshots taken by the robot. A feedback mechanism is integrated into both the robot vision method and the robot control method. This mechanism presents feedback in the chat area, reflecting the robot’s current status and actions. The interface includes additional functionalities through various buttons. These buttons enable users to start the Franka robot system (making a snapshot and initializing the back end), reinitialize the robot control node, refresh the user interface, run the detection to display manipulable objects, and change the camera index. The user interface, developed using Tkinter, serves as the connection to the back end, handling camera commands, task decomposition, and environmental interpretation facilitated by ChatGPT.
+
+![System Flowchart](Images/System.png)
+
+Next to the experiments a case studies has been performed: **switching fuses on voltage racks**. The user provides the instruction **"Can you prepare the fuse holders and then place the dummy fuse in the middle holder"** in the LERACS interface.
+
+<div style="display: flex; flex-direction: row;">
+    <img src="Images/systemAlliander.png" alt="System Flowchart" width="45%">
+    <img src="Images/Alliander_sequence.png" alt="Another Image" width="45%" style="margin-left: 10px;">
+</div>
 
 
 ## Credits
