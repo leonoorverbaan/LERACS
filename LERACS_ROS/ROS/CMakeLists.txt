@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(mrirac)
+project(ROS)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -12,8 +12,6 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   franka_gripper
   moveit_ros_planning_interface
-  mrirac_msgs
-  mrirac_lib
   franka_msgs
 )
 
