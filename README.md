@@ -83,10 +83,7 @@ The robot interface consists of two primary areas: the **chat area** and the **r
 ![System Experiment](Images/System.png)
 
 <div align="center">
-  <video width="600" controls>
-    <source src="Images/BuildingTowers.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
+  <img src="Images/BuildingTowers.gif" alt="Building Towers" width="600">
 </div>
 
 Next to the experiments a case studies has been performed: **switching fuses on voltage racks**. The user provides the instruction **"Can you prepare the fuse holders and then place the dummy fuse in the middle holder"** in the LERACS interface.
@@ -100,7 +97,7 @@ Next to the experiments a case studies has been performed: **switching fuses on 
 
 This project was developed as part of the Master Thesis for my (Leonoor Verbaan) MSc. Robotics at the TU Delft. The project was supervised by Yke Bauke Eisema (Cognitive Robotics, TU Delft) and Remco van Leeuwen (Research Center for Digital Technologies, Alliander).
 
-This package is an adaption of the original [ChatGPT-Robot-Manipulation-Prompts](https://github.com/microsoft/ChatGPT-Robot-Manipulation-Prompts). Created by Matthew Hanlon and supervised by Eric Vollenweider from the ETH Zurich.
+This package is an adaption of the original [ChatGPT-Robot-Manipulation-Prompts](https://github.com/microsoft/ChatGPT-Robot-Manipulation-Prompts). Created by Naoki Wake (microsoftopensourcse).
 
 
 ## Contributing
