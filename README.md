@@ -58,7 +58,7 @@ If the setup was successful, you should be able to set a pose goal using the rvi
 
 ## How to use
 
-1. Then, go to a subfolder in [LERACS_CONTROL/](LERACS_CONTROL/).
+1. If you would like to see the prompts and the scripts for LERACS, then go to a subfolder in [LERACS_CONTROL/](LERACS_CONTROL/).
 
 2. Sample codes are provided for using ChatGPT through [OpenAI API](https://beta.openai.com/). Fill in the [secrets.json](secrets.json) with your credential information. Even if you do not have a subscription, you can try it out by copying and pasting the prompts into the [OpenAI's interface](https://platform.openai.com/examples).
 
@@ -72,11 +72,15 @@ If the setup was successful, you should be able to set a pose goal using the rvi
 
 4. More details about the contents of this subfolder can be found in [LERACS_CONTROL/](LERACS_CONTROL/) on this Github.
 
+5. If you would like to see the prompts and the code on how the AI users are generated and assessed with a personality test (one of the experiments in the paper), then go to a subfolder in [LERACS_EXPERIMENT/](LERACS_EXPERIMENT/).
+
+5. If you would like to see the prompts and the integrated ROS components, then go to a subfolder in [LERACS_ROS/](LERACS_ROS/).
+
 
 ## Example use case
 Experiments about setting and task instruction complexity have been performed on LERACS. The following is a visualization of the interface with all of LERACS components in use.
 
-The robot interface consists of two primary areas: the **chat area** and the **robot vision area** (snapshot) in [system Experiment] and [system use case]. The chat area allows users to communicate with the robot, receiving textual responses, while the robot vision area provides visual feedback by displaying snapshots taken by the robot. A feedback mechanism is integrated into both the robot vision method and the robot control method. This mechanism presents feedback in the chat area, reflecting the robot’s current status and actions. The interface includes additional functionalities through various buttons. These buttons enable users to start the Franka robot system (making a snapshot and initializing the back end), reinitialize the robot control node, refresh the user interface, run the detection to display manipulable objects, and change the camera index. The user interface, developed using Tkinter, serves as the connection to the back end, handling camera commands, task decomposition, and environmental interpretation facilitated by ChatGPT.
+The robot interface consists of two primary areas: the **chat area** and the **robot vision area** (snapshot). The chat area allows users to communicate with the robot, receiving textual responses, while the robot vision area provides visual feedback by displaying snapshots taken by the robot. A feedback mechanism is integrated into both the robot vision method and the robot control method. This mechanism presents feedback in the chat area, reflecting the robot’s current status and actions. The interface includes additional functionalities through various buttons. These buttons enable users to start the Franka robot system (making a snapshot and initializing the back end), reinitialize the robot control node, refresh the user interface, run the detection to display manipulable objects, and change the camera index. The user interface, developed using Tkinter, serves as the connection to the back end, handling camera commands, task decomposition, and environmental interpretation facilitated by ChatGPT.
 
 ### Experiment use case
 Experiments were performed with a physical arm to test how LERACS would react on the complexity of the setting and task instructions. The image and video below displays an example of the in and output of the UI and the sequence generated and performed by the franka emika robot arm. he user provides the instruction **"Build two towers from the blocks"** in the LERACS interface.
