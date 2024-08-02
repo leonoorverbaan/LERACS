@@ -1,5 +1,6 @@
 This folder contains the prompts used for task decomposition from natural language in my thesis paper, as well as an example of ChatGPT output. We used gpt-4o for the experiments. The Directory structure should look like this:
 
+```sh
 root_folder
 ├── UI.py
 ├── out/
@@ -7,14 +8,13 @@ root_folder
 ├── query/
 ├── scripts/
 └── system/
-
-```sh
-- UI.py: a python script for the User Interface calling ChatGPT in the chat.
-- system/: Contains a text file to be inserted at the beginning of the prompt.
-- prompt/: A folder for storing the prompts.
-- query/: Contains a template for converting user input into prompts.
-- out/: A folder for storing the output of ChatGPT.
 ```
+
+- `UI.py: a python script for the User Interface calling ChatGPT in the chat.
+- `system/`: Contains a text file to be inserted at the beginning of the prompt.
+- `prompt/`: A folder for storing the prompts.
+- `query/`: Contains a template for converting user input into prompts.
+- `out/`: A folder for storing the output of ChatGPT.
 
 **Please note that:**
 
