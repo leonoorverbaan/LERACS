@@ -76,22 +76,26 @@ If the setup was successful, you should be able to set a pose goal using the rvi
 ## Example use case
 Experiments about setting and task instruction complexity have been performed on LERACS. The following is a visualization of the interface with all of LERACS components in use.
 
+The robot interface consists of two primary areas: the **chat area** and the **robot vision area** (snapshot) in [system Experiment] and [system use case]. The chat area allows users to communicate with the robot, receiving textual responses, while the robot vision area provides visual feedback by displaying snapshots taken by the robot. A feedback mechanism is integrated into both the robot vision method and the robot control method. This mechanism presents feedback in the chat area, reflecting the robot’s current status and actions. The interface includes additional functionalities through various buttons. These buttons enable users to start the Franka robot system (making a snapshot and initializing the back end), reinitialize the robot control node, refresh the user interface, run the detection to display manipulable objects, and change the camera index. The user interface, developed using Tkinter, serves as the connection to the back end, handling camera commands, task decomposition, and environmental interpretation facilitated by ChatGPT.
 
+### Experiment use case
+Experiments were performed with a physical arm to test how LERACS would react on the complexity of the setting and task instructions. The image and video below displays an example of the in and output of the UI and the sequence generated and performed by the franka emika robot arm. he user provides the instruction **"Build two towers from the blocks"** in the LERACS interface.
 
-The robot interface consists of two primary areas: the **chat area** and the **robot vision area** (snapshot). The chat area allows users to communicate with the robot, receiving textual responses, while the robot vision area provides visual feedback by displaying snapshots taken by the robot. A feedback mechanism is integrated into both the robot vision method and the robot control method. This mechanism presents feedback in the chat area, reflecting the robot’s current status and actions. The interface includes additional functionalities through various buttons. These buttons enable users to start the Franka robot system (making a snapshot and initializing the back end), reinitialize the robot control node, refresh the user interface, run the detection to display manipulable objects, and change the camera index. The user interface, developed using Tkinter, serves as the connection to the back end, handling camera commands, task decomposition, and environmental interpretation facilitated by ChatGPT.
-
-![System Experiment](Images/System.png)
+![system experiment](Images/System.png)
 
 <p align="center">
   <img src="Images/BuidlingTowersvid.gif" alt="Sequence Experiment">
 </p>
 
 
+
+### Grid operator use case
+
 Next to the experiments a case studies has been performed: **switching fuses on voltage racks**. The user provides the instruction **"Can you prepare the fuse holders and then place the dummy fuse in the middle holder"** in the LERACS interface.
 
-![System use case](Images/systemAlliander.png)
+![system use case](Images/systemAlliander.png)
 
-![Sequence use case](Images/Alliander_sequence.png)
+![sequence use case](Images/Alliander_sequence.png)
 
 
 ## Credits
