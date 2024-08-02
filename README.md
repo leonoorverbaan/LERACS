@@ -82,7 +82,7 @@ The robot interface consists of two primary areas: the **chat area** and the **r
 
 ![System Experiment](Images/System.png)
 
-![System Experiment](Images/BuildingTowers.gif)
+![System Experiment](Images/BuidlingTowersvid.gif)
 
 Next to the experiments a case studies has been performed: **switching fuses on voltage racks**. The user provides the instruction **"Can you prepare the fuse holders and then place the dummy fuse in the middle holder"** in the LERACS interface.
 
