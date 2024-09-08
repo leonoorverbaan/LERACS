@@ -31,7 +31,9 @@ Make sure that Ubuntu is installed with a realtime kernel. This gives the opport
 ### Ethernet Connection
 Connect the Ethernet cable to the port on the robot and to a port on the PC. So that the PC can connect to the robot driver via the Ethernet connection, the wired connection has to be configured in the following way:
 
-![System Flowchart](Images/WiredConnection.png)
+<img src="Images/WiredConnection.png" alt="Wired Connection" width="50%"/>
+
+
 
 ### ROS
 This project was developed using ROS Noetic. It may work with other ROS releases, but it is recommended to set up a Noetic environment on the external PC, using these [instructions](http://wiki.ros.org/noetic/Installation/Ubuntu).
