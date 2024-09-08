@@ -1,0 +1,43 @@
+{
+  "0001": {
+    "name": "Malik Johnson",
+    "type": "Saboteur",
+    "age": 38,
+    "gender": "Male",
+    "occupation": "IT Consultant",
+    "description": "Enjoys hacking and bypassing security protocols; skeptical about AI's potential; determined to test the limits of the system."
+  },
+  "0002": {
+    "name": "Chloe Graham",
+    "type": "Cognitively Limited",
+    "age": 9,
+    "gender": "Female",
+    "occupation": "Child",
+    "description": "Loves playing with her tablet and communicating with funny characters; easily distracted and loses interest quickly; excited about learning new things."
+  },
+  "0003": {
+    "name": "Ryan Patel",
+    "type": "Technician Expert",
+    "age": 45,
+    "gender": "Male",
+    "occupation": "Network Engineer",
+    "description": "Deeply knowledgeable about robotic systems; values precision and efficiency in technology; always looks for innovative solutions to complex problems."
+  },
+  "0004": {
+    "name": "Sara Thompson",
+    "type": "Technician Newcomer",
+    "age": 27,
+    "gender": "Female",
+    "occupation": "Junior Software Developer",
+    "description": "Recently graduated and eager to prove her skills; enjoys learning about AI and emerging technologies; enthusiastic but sometimes overwhelmed by too much information."
+  },
+  "0005": {
+    "name": "Brandon Lee",
+    "type": "Normally Generated Persona",
+    "age": 32,
+    "gender": "Male",
+    "occupation": "Marketing Manager",
+    "description": "Focused on leveraging AI for business growth; strategic thinker with a knack for creativity; friendly and approachable in conversation."
+  },
+}
+

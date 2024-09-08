@@ -1,0 +1,137 @@
+{
+    "environment": {
+        "assets": [
+            "<table>",
+            "<floor>"
+        ],
+        "asset_states": {
+            "<table>": "on_something(<floor>)"
+        },
+        "objects": [
+            "<green_rectangle(marker_id:\"0\")>",
+            "<blue_rectangle(marker_id:\"1\")>",
+            "<red_case(marker_id:\"2\")>",
+            "<red_cube(marker_id:\"3\")>",
+            "<blue_case(marker_id:\"4\")>",
+            "<yellow_rectangle(marker_id:\"5\")>"
+        ],
+        "object_states": {
+            "<green_rectangle(marker_id:\"0\")>": "on_something(<table>)",
+            "<blue_rectangle(marker_id:\"1\")>": "on_something(<table>)",
+            "<red_case(marker_id:\"2\")>": "on_something(<table>)",
+            "<red_cube(marker_id:\"3\")>": "on_something(<table>)",
+            "<blue_case(marker_id:\"4\")>": "on_something(<table>)",
+            "<yellow_rectangle(marker_id:\"5\")>": "on_something(<table>)"
+        }
+    }
+}
+
+{
+    "environment": {
+        "assets": [
+            "<table>",
+            "<floor>"
+        ],
+        "asset_states": {
+            "<table>": "on_something(<floor>)"
+        },
+        "objects": [
+            "<red_cube(marker_id:\"3\")>",
+            "<red_case(marker_id:\"2\")>",
+            "<blue_cube(marker_id:\"4\")>",
+            "<yellow_rectangle(marker_id:\"5\")>",
+            "<green_rectangle(marker_id:\"0\")>",
+            "<blue_case(marker_id:\"1\")>"
+        ],
+        "object_states": {
+            "<red_cube(marker_id:\"3\")>": "on_something(<table>)",
+            "<blue_cube(marker_id:\"4\")>": "on_something(<table>)",
+            "<yellow_rectangle(marker_id:\"5\")>": "on_something(<table>)",
+            "<red_case(marker_id:\"2\")>": "on_something(<table>)",
+            "<green_rectangle(marker_id:\"0\")>": "on_something(<table>)",
+            "<blue_case(marker_id:\"1\")>": "on_something(<table>)"
+        }
+    }
+}
+
+
+{
+    "task_cohesion": {
+        "task_sequence": [
+            "all_update()",
+            "init_constraints()",
+            "move_to_marker(\"3\")",
+            "grasp(\"open\")",
+            "push(\"3\", \"left\")",
+            "move_camera_state_low()"
+        ],
+        "step_instructions": [
+            "update the marker and world positions.",
+            "initialize constraints.",
+            "move the end-effector to the object.",
+            "open the gripper.",
+            "push the object to the left.",
+            "move the end-effector to the low camera position."
+        ],
+        "object_name": [
+            "<red_case(marker_id:\"2\")>",
+            "<blue_case(marker_id:\"1\")>",
+            "<blue_cube(marker_id:\"4\")>",
+            "<red_cube(marker_id:\"3\")>",
+            "<yellow_rectangle(marker_id:\"5\")>",
+            "<green_rectangle(marker_id:\"0\")>"
+        ]
+    },
+    "environment_before": {
+        "assets": [
+            "<table>",
+            "<floor>"
+        ],
+        "asset_states": {
+            "<table>": "on_something(<floor>)"
+        },
+        "objects": [
+            "<red_case(marker_id:\"2\")>",
+            "<blue_case(marker_id:\"1\")>",
+            "<blue_cube(marker_id:\"4\")>",
+            "<red_cube(marker_id:\"3\")>",
+            "<yellow_rectangle(marker_id:\"5\")>",
+            "<green_rectangle(marker_id:\"0\")>"
+        ],
+        "object_states": {
+            "<red_case(marker_id:\"2\")>": "on_something(<table>)",
+            "<blue_case(marker_id:\"1\")>": "on_something(<table>)",
+            "<blue_cube(marker_id:\"4\")>": "on_something(<table>)",
+            "<red_cube(marker_id:\"3\")>": "on_something(<table>)",
+            "<yellow_rectangle(marker_id:\"5\")>": "on_something(<table>)",
+            "<green_rectangle(marker_id:\"0\")>": "on_something(<table>)"
+        }
+    },
+    "environment_after": {
+        "assets": [
+            "<table>",
+            "<floor>"
+        ],
+        "asset_states": {
+            "<table>": "on_something(<floor>)"
+        },
+        "objects": [
+            "<red_case(marker_id:\"2\")>",
+            "<blue_case(marker_id:\"1\")>",
+            "<blue_cube(marker_id:\"4\")>",
+            "<red_cube(marker_id:\"3\")>",
+            "<yellow_rectangle(marker_id:\"5\")>",
+            "<green_rectangle(marker_id:\"0\")>"
+        ],
+        "object_states": {
+            "<red_case(marker_id:\"2\")>": "on_something(<table>)",
+            "<blue_case(marker_id:\"1\")>": "on_something(<table>)",
+            "<blue_cube(marker_id:\"4\")>": "on_something(<table>)",
+            "<red_cube(marker_id:\"3\")>": "on_something(<blue_cube(marker_id:\"4\")>)",
+            "<yellow_rectangle(marker_id:\"5\")>": "on_something(<table>)",
+            "<green_rectangle(marker_id:\"0\")>": "on_something(<table>)"
+        }
+    },
+    "instruction_summary": "push one of the blocks to the position of one of the other blocks",
+    "question": ""
+}

@@ -1,0 +1,87 @@
+{
+    "0001": [
+        {
+            "response": "2 5 4 1 2 4 3 5 1 3",
+            "questions_order": [
+                "is outgoing, sociable.",
+                "does a thorough job.",
+                "is reserved.",
+                "tends to be lazy.",
+                "is relaxed, handles stress well.",
+                "tends to find fault with others.",
+                "has few artistic interests.",
+                "has an active imagination.",
+                "is generally trusting.",
+                "gets nervous easily."
+            ]
+        }
+    ],
+    "0002": [
+        {
+            "response": "4 2 4 2 3 2 4 5 1 3",
+            "questions_order": [
+                "is generally trusting.",
+                "has few artistic interests.",
+                "is outgoing, sociable.",
+                "is reserved.",
+                "is relaxed, handles stress well.",
+                "tends to be lazy.",
+                "gets nervous easily.",
+                "has an active imagination.",
+                "tends to find fault with others.",
+                "does a thorough job."
+            ]
+        }
+    ],
+    "0003": [
+        {
+            "response": "1 5 2 4 2 4 4 2 3 4",
+            "questions_order": [
+                "tends to be lazy.",
+                "is outgoing, sociable.",
+                "is relaxed, handles stress well.",
+                "does a thorough job.",
+                "tends to find fault with others.",
+                "has few artistic interests.",
+                "is reserved.",
+                "gets nervous easily.",
+                "is generally trusting.",
+                "has an active imagination."
+            ]
+        }
+    ],
+    "0004": [
+        {
+            "response": "3 2 2 4 5 2 3 4 2 5",
+            "questions_order": [
+                "gets nervous easily.",
+                "has few artistic interests.",
+                "is reserved.",
+                "is generally trusting.",
+                "has an active imagination.",
+                "tends to be lazy.",
+                "is relaxed, handles stress well.",
+                "is outgoing, sociable.",
+                "tends to find fault with others.",
+                "does a thorough job."
+            ]
+        }
+    ],
+    "0005": [
+        {
+            "response": "5 4 2 4 2 3 2 5 1 4",
+            "questions_order": [
+                "does a thorough job.",
+                "is outgoing, sociable.",
+                "gets nervous easily.",
+                "is generally trusting.",
+                "tends to find fault with others.",
+                "has few artistic interests.",
+                "is reserved.",
+                "has an active imagination.",
+                "tends to be lazy.",
+                "is relaxed, handles stress well."
+            ]
+        }
+    ],
+}
